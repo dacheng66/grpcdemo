@@ -1,0 +1,57 @@
+//配置protoc-gen-go.exe，protoc.exe
+//cd E:\git_local\src\grpcdemo
+//protoc -I grpcdemo/ grpcdemo.proto --go_out=plugins=grpc:grpcdemo
+syntax = "proto3";
+
+option java_multiple_files = true;
+//protoc 编译后生成的包结构名以及外部调用类
+option java_package = "com.huayuan-iot.hmc.grpcdemo";
+option java_outer_classname = "GrpcDemoProto";
+
+package grpcdemo;
+
+service GrpcDemo {
+    //简单 RPC
+    rpc GetFeature(Point) returns(Feature){}
+
+    //服务器端流式 RPC,客户端发送请求到服务器，
+    //客户端读取返回的流，直到里面没有任何消息。
+    rpc ListFeatures(Rectangle) returns(stream Feature){}
+
+    //客户端流式 RPC , 客户端写入一个消息序列并将其发送到服务器
+    //一旦客户端完成写入消息，它等待服务器完成读取返回它的响应。
+    rpc RecordRoute(stream Point) returns (RouteSummary) {}
+
+    //双向流式 RPC
+    //服务器可以在写入响应前等待接收所有的客户端消息
+    //或者可以交替的读取和写入消息，或者其他读写的组合。
+    rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}
+
+}
+
+message Point{
+    int32 latitude  = 1;
+    int32 longitude = 2;
+}
+
+message Feature{
+    string name = 1;
+    Point location = 2;
+}
+
+message Rectangle{
+    Point lo = 1;
+    Point hi = 2;
+}
+
+message RouteNote {
+    Point location = 1;
+    string message = 2;
+}
+
+message RouteSummary {
+    int32 point_count = 1;
+    int32 feature_count = 2;
+    int32 distance = 3;
+    int32 elapsed_time = 4;
+}
